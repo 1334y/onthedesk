@@ -1,0 +1,24 @@
+# Dependencies
+clawd/node_modules/
+clawd/src-tauri/target/
+
+# Build output
+clawd/dist/
+clawd/target/
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
