@@ -1,0 +1,122 @@
+<h2>🐚 Claude 桌宠 — 系统架构</h2>
+<p class="subtitle">Tauri + PixiJS 跨平台桌面宠物应用</p>
+
+<div class="section">
+  <h3>架构总览</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Layered Architecture</div>
+  <div class="mockup-body" style="font-family: monospace; font-size: 13px; line-height: 1.6; padding: 16px;">
+    <div style="display:grid; grid-template-columns: 1fr; gap: 8px;">
+
+      <!-- Layer 4: Resources -->
+      <div style="border: 1px dashed #888; border-radius: 6px; padding: 10px; background: #1a1a1a;">
+        <span style="color: #888;">📦 Resources &amp; Assets</span>
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <span class="placeholder" style="flex:1">Sprite Sheets</span>
+          <span class="placeholder" style="flex:1">Dialog DB</span>
+          <span class="placeholder" style="flex:1">Sounds</span>
+          <span class="placeholder" style="flex:1">Config</span>
+        </div>
+      </div>
+
+      <!-- Layer 3: App Core -->
+      <div style="border: 1px solid #4ec9b0; border-radius: 6px; padding: 10px; background: #0d2b1f;">
+        <span style="color: #4ec9b0;">🎮 App Core (TypeScript + PixiJS)</span>
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <div style="flex:1; background:#1a3a2a; border-radius:4px; padding:6px; text-align:center;">
+            <div style="color:#4ec9b0;">Sprite Engine</div>
+            <div style="color:#888;font-size:11px;">动画帧 · 骨骼 · 变形</div>
+          </div>
+          <div style="flex:1; background:#1a3a2a; border-radius:4px; padding:6px; text-align:center;">
+            <div style="color:#4ec9b0;">Behavior AI</div>
+            <div style="color:#888;font-size:11px;">状态机 · 行为树 · 决策</div>
+          </div>
+          <div style="flex:1; background:#1a3a2a; border-radius:4px; padding:6px; text-align:center;">
+            <div style="color:#4ec9b0;">Physics/Move</div>
+            <div style="color:#888;font-size:11px;">行走 · 重力 · 攀爬</div>
+          </div>
+          <div style="flex:1; background:#1a3a2a; border-radius:4px; padding:6px; text-align:center;">
+            <div style="color:#4ec9b0;">Interaction</div>
+            <div style="color:#888;font-size:11px;">点击 · 拖拽 · 对话</div>
+          </div>
+          <div style="flex:1; background:#1a3a2a; border-radius:4px; padding:6px; text-align:center;">
+            <div style="color:#4ec9b0;">Nurture System</div>
+            <div style="color:#888;font-size:11px;">状态 · 等级 · 解锁</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 2: IPC Bridge -->
+      <div style="border: 1px solid #569cd6; border-radius: 6px; padding: 10px; background: #0d1b2b;">
+        <span style="color: #569cd6;">🔗 IPC Bridge (Tauri Commands + Events)</span>
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <span class="placeholder" style="flex:1">Window Control</span>
+          <span class="placeholder" style="flex:1">Window Detection</span>
+          <span class="placeholder" style="flex:1">Persistence</span>
+          <span class="placeholder" style="flex:1">System Events</span>
+          <span class="placeholder" style="flex:1">Claude API</span>
+        </div>
+      </div>
+
+      <!-- Layer 1: Native -->
+      <div style="border: 1px solid #ce9178; border-radius: 6px; padding: 10px; background: #2b1d0d;">
+        <span style="color: #ce9178;">🖥️ Native Layer (Rust)</span>
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <div style="flex:1; background:#3a2a1a; border-radius:4px; padding:6px; text-align:center;">
+            <div style="color:#ce9178;">Transparent Window</div>
+            <div style="color:#888;font-size:11px;">置顶 · 无边框 · 穿透</div>
+          </div>
+          <div style="flex:1; background:#3a2a1a; border-radius:4px; padding:6px; text-align:center;">
+            <div style="color:#ce9178;">Window Manager</div>
+            <div style="color:#888;font-size:11px;">枚举 · 位置 · 层级</div>
+          </div>
+          <div style="flex:1; background:#3a2a1a; border-radius:4px; padding:6px; text-align:center;">
+            <div style="color:#ce9178;">SysTray</div>
+            <div style="color:#888;font-size:11px;">托盘图标 · 菜单</div>
+          </div>
+          <div style="flex:1; background:#3a2a1a; border-radius:4px; padding:6px; text-align:center;">
+            <div style="color:#ce9178;">Storage</div>
+            <div style="color:#888;font-size:11px;">SQLite · 本地文件</div>
+          </div>
+          <div style="flex:1; background:#3a2a1a; border-radius:4px; padding:6px; text-align:center;">
+            <div style="color:#ce9178;">Launcher</div>
+            <div style="color:#888;font-size:11px;">开机自启 · 进程守护</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 0: OS -->
+      <div style="border: 1px dashed #555; border-radius: 6px; padding: 10px; background: #111;">
+        <span style="color: #666;">💻 Operating System — Windows · macOS · Linux</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>核心数据流</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Runtime Data Flow</div>
+  <div class="mockup-body" style="padding: 20px; text-align: center; font-family: monospace; font-size: 13px; line-height: 1.8;">
+    <div style="margin-bottom: 10px; color: #ce9178;">[OS Events] — mouse move · window resize · click</div>
+    <div style="margin-bottom: 10px; color: #aaa;">⬇</div>
+    <div style="margin-bottom: 10px; color: #569cd6;">[Tauri Event Loop] → 筛选 · 转发 · 坐标转换</div>
+    <div style="margin-bottom: 10px; color: #aaa;">⬇</div>
+    <div style="border:1px solid #4ec9b0; border-radius:6px; padding:12px; margin-bottom:10px; background:#0d2b1f;">
+      <div style="color: #4ec9b0;">[Game Loop — PixiJS Ticker]</div>
+      <div style="color: #aaa; margin-top: 6px;">
+        Input → State Machine → Behavior Tree → Animation Controller → Render
+      </div>
+      <div style="color: #888; margin-top: 4px; font-size: 11px;">
+        ← Nurture System (stat decay over time)
+      </div>
+    </div>
+    <div style="margin-bottom: 10px; color: #aaa;">⬇</div>
+    <div style="margin-bottom: 10px; color: #4ec9b0;">[Canvas Render] → 透明窗口叠加到桌面</div>
+  </div>
+</div>

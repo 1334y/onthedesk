@@ -10,7 +10,7 @@ import pixelData_deep from './data/whale-pixels.json';
 // ====== 双主题 ======
 type Pet = { n: string; d: { w: number; h: number; p: number[] }; b: number; bc: string; el: { x: number; y: number }; er: { x: number; y: number } };
 var T: Record<string, Pet> = {
-  clawd: { n: "Clawd", d: pixelData_crab, b: 0xD97757FF, bc: "#D97757", el: { x: 26, y: 33 }, er: { x: 50, y: 33 } },
+  clawd: { n: "clawd", d: pixelData_crab, b: 0xD97757FF, bc: "#D97757", el: { x: 26, y: 33 }, er: { x: 50, y: 33 } },
   deep: { n: "deep", d: pixelData_deep, b: 0x4A7DFFFF, bc: "#4A7DFF", el: { x: 25, y: 16 }, er: { x: 25, y: 16 } },
 };
 var ct = T.clawd;
@@ -20,8 +20,8 @@ try { var sn = localStorage.getItem("cp"); if (sn && T[sn]) ct = T[sn]; } catch 
 // ====== 常量 ======
 const SCALE = 2.3;
 var CW = ct.d.w, CH = ct.d.h;
-var Ww = Math.round(ct.d.w * SCALE + 20);
-var Wh = Math.round(ct.d.h * SCALE + 36);
+var Ww = Math.round(CW * SCALE + 8);
+var Wh = Math.round(CH * SCALE + 40);
 const S = SCALE;
 var BODY = ct.b;
 const BLACK = 0x191A1BFF;
@@ -30,10 +30,6 @@ const HEART = 0xDD5544FF;
 const GOLD = 0xFFCC00FF;
 const E = BLACK; const W = WHITE; const H = HEART; const G = GOLD;
 var PX:number[]=[...ct.d.p];
-var CW=ct.d.w,CH=ct.d.h;
-var Ww=Math.round(CW*SCALE+30);
-var Wh=Math.round(CH*SCALE+70);
-var BODY=ct.b;
 var EYE_L={x:ct.el.x,y:ct.el.y,w:3,h:4};
 var EYE_R={x:ct.er.x,y:ct.er.y,w:3,h:4};
 function setP(x: number, y: number, c: number): void {
@@ -113,13 +109,16 @@ async function fetchWeather(lat: number, lon: number): Promise<WeatherData | nul
   catch { return null; }
 }
 async function refreshWeather(): Promise<void> {
-  const now = Date.now(); if (weather && now - weatherLastFetch < WEATHER_INTERVAL) return;
+  const now = Date.now();
+  // 启动后立即获取一次, 之后10分钟间隔
+  var interval = weather ? 10 * 60 * 1000 : 0;
+  if (weather && now - weatherLastFetch < interval) return;
   weatherLastFetch = now; const loc = await fetchLocation(); if (!loc) return;
   const w = await fetchWeather(loc.lat, loc.lon); if (!w) return;
   w.city = loc.city; weather = w; saveWeatherCache();
 }
 function saveWeatherCache(): void { try { if (weather) localStorage.setItem('clawd-weather', JSON.stringify(weather)); } catch {} }
-function loadWeatherCache(): void { try { const raw = localStorage.getItem('clawd-weather'); if (raw) { weather = JSON.parse(raw); weatherLastFetch = weather?.updated || 0; } } catch {} }
+function loadWeatherCache(): void { try { const raw = localStorage.getItem('clawd-weather'); if (raw) { weather = JSON.parse(raw); weatherLastFetch = 0; } } catch {} }
 
 // === 表情 ===
 
@@ -387,7 +386,7 @@ function loop(): void {
   if (cp > 1800) { cp = 0; companion(); }
   wx += dt;
   // 每 30 分钟刷新天气
-  if (wx > 1800) { wx = 0; refreshWeather(); }
+  if (wx > 600) { wx = 0; refreshWeather(); } // 每10分钟刷新天气
   // 眨眼: 每 3~8 秒眨眼一次
   if (bk > 3 + Math.random() * 5) { bk = 0; if (curExpr === 'normal' && exprTimer <= 0) setExpr('blink', 0.15); }
 
@@ -436,9 +435,11 @@ async function main() {
   tempData = tempCtx.createImageData(CW, CH);
 
   bubble = document.createElement('div');
-  var petTop = Wh - 8 - Math.round(CH * S); // 宠物头顶在canvas的位置
-  var bubbleTop = petTop - 40; // 气泡在头顶上方
-  bubble.style.cssText = 'position:fixed;top:'+bubbleTop+'px;left:50%;transform:translateX(-50%);padding:3px 8px;font-family:monospace;font-size:11px;background:rgba(20,20,19,0.92);color:#FAF9F5;border:1px solid '+ct.bc+';border-radius:6px;max-width:220px;text-align:center;z-index:20;pointer-events:none;display:none;transition:opacity 0.3s;';
+  // Clawd气泡在眼上方, DeepSeek更靠上避开喷水花
+  var gap = ct.n === 'deep' ? 50 : 24;
+  var bTop = Wh - 8 - Math.round(CH * S) - gap;
+  if (bTop < 2) bTop = 2;
+  bubble.style.cssText = 'position:fixed;top:'+bTop+'px;left:50%;transform:translateX(-50%);padding:3px 8px;font-family:monospace;font-size:11px;background:rgba(20,20,19,0.92);color:#FAF9F5;border:1px solid '+ct.bc+';border-radius:6px;max-width:180px;text-align:center;z-index:20;pointer-events:none;display:none;transition:opacity 0.3s;';
   document.body.appendChild(bubble);
 
   render(true);

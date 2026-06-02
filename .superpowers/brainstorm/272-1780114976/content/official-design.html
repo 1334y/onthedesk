@@ -1,0 +1,138 @@
+<h2>🦀 角色设计 — Claude Code 官方建模螃蟹</h2>
+<p class="subtitle">基于 output.svg — 95×70 官方像素精灵 · 9色调色板</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">官方 SVG 解析结果</div>
+    <div class="mockup-body" style="padding:16px;">
+      <table style="width:100%;color:#ccc;font-size:13px;">
+        <tr style="color:#D97757;"><td style="padding:4px;">画布尺寸</td><td><strong>95 × 70 px</strong></td></tr>
+        <tr><td style="padding:4px;">渲染方式</td><td>1px rect 逐像素（shape-rendering: crispEdges）</td></tr>
+        <tr><td style="padding:4px;">总像素数</td><td>6,650 个 1×1 rect</td></tr>
+        <tr><td style="padding:4px;">颜色数量</td><td>9 色（含背景）</td></tr>
+        <tr><td style="padding:4px;color:#D97757;">风格</td><td><strong>官方像素艺术（非粗糙复古，精细化明暗）</strong></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">官方 9 色调色板</div>
+    <div class="mockup-body" style="padding:16px;">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <div style="text-align:center;">
+          <div style="width:48px;height:48px;background:#191A1B;border-radius:6px;border:1px solid #333;"></div>
+          <div style="color:#888;font-size:10px;margin-top:4px;">背景 #191A1B</div>
+          <div style="color:#555;font-size:9px;">5,371px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px;height:48px;background:#D97757;border-radius:6px;"></div>
+          <div style="color:#D97757;font-size:10px;margin-top:4px;">🦀 主体 #D97757</div>
+          <div style="color:#555;font-size:9px;">1,059px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px;height:48px;background:#312623;border-radius:6px;"></div>
+          <div style="color:#888;font-size:10px;margin-top:4px;">暗部 #312623</div>
+          <div style="color:#555;font-size:9px;">61px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px;height:48px;background:#905440;border-radius:6px;"></div>
+          <div style="color:#888;font-size:10px;margin-top:4px;">阴影 #905440</div>
+          <div style="color:#555;font-size:9px;">41px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px;height:48px;background:#794839;border-radius:6px;"></div>
+          <div style="color:#888;font-size:10px;margin-top:4px;">阴影 #794839</div>
+          <div style="color:#555;font-size:9px;">27px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px;height:48px;background:#C16B4F;border-radius:6px;"></div>
+          <div style="color:#888;font-size:10px;margin-top:4px;">亮部 #C16B4F</div>
+          <div style="color:#555;font-size:9px;">26px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px;height:48px;background:#623D32;border-radius:6px;"></div>
+          <div style="color:#888;font-size:10px;margin-top:4px;">阴影 #623D32</div>
+          <div style="color:#555;font-size:9px;">24px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px;height:48px;background:#49312A;border-radius:6px;"></div>
+          <div style="color:#888;font-size:10px;margin-top:4px;">阴影 #49312A</div>
+          <div style="color:#555;font-size:9px;">24px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px;height:48px;background:#A86048;border-radius:6px;"></div>
+          <div style="color:#888;font-size:10px;margin-top:4px;">中间调 #A86048</div>
+          <div style="color:#555;font-size:9px;">17px</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>设计含义 &amp; 动画策略</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">从官方静态 SVG → 动画精灵方案</div>
+  <div class="mockup-body" style="padding:16px;line-height:1.8;">
+    <p style="color:#ccc;">官方 SVG 是<strong style="color:#D97757;">单帧静态像素艺术</strong>，我们的桌宠需要在这个基础上制作动画。</p>
+
+    <div style="display:flex;gap:12px;margin-top:16px;">
+      <div style="flex:1;padding:12px;background:#1a2a1a;border-radius:6px;border-left:3px solid #4ec9b0;">
+        <h4 style="color:#4ec9b0;margin:0 0 6px;">✅ 保留</h4>
+        <ul style="color:#aaa;font-size:12px;margin:0;padding-left:16px;">
+          <li>9 色调色板严格一致</li>
+          <li>95×70 原生分辨率</li>
+          <li>身体比例 &amp; 钳子形状</li>
+          <li>方形黑眼 + 白色高光点</li>
+          <li>crispEdges 渲染（近邻采样）</li>
+        </ul>
+      </div>
+      <div style="flex:1;padding:12px;background:#2a1a1a;border-radius:6px;border-left:3px solid #D97757;">
+        <h4 style="color:#D97757;margin:0 0 6px;">🎨 扩展</h4>
+        <ul style="color:#aaa;font-size:12px;margin:0;padding-left:16px;">
+          <li>基于原图拆解身体部件（身体/钳子/腿/眼睛）</li>
+          <li>用原调色板补全各角度帧</li>
+          <li>缩放渲染到 2x~3x（190~285px 显示尺寸）</li>
+          <li>粒子层独立（爱心/Zzz/气泡）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>动画制作策略</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">以官方原图为 idle 基准帧，派生其余动画帧</div>
+  <div class="mockup-body" style="padding:16px;">
+    <table style="width:100%;color:#ccc;font-size:13px;">
+      <tr style="color:#D97757;">
+        <th style="text-align:left;padding:6px;">动作</th>
+        <th style="text-align:center;padding:6px;">帧数</th>
+        <th style="text-align:left;padding:6px;">制作方式</th>
+        <th style="text-align:left;padding:6px;">说明</th>
+      </tr>
+      <tr><td style="color:#D97757;">idle</td><td style="text-align:center;">4-6</td><td>原图微调</td><td>呼吸起伏 + 眨眼帧，在原图上做像素级微调</td></tr>
+      <tr><td>walk (L/R)</td><td style="text-align:center;">6-8</td><td>拆件动画</td><td>腿部件横向位移 + 身体上下弹跳</td></tr>
+      <tr><td>climb</td><td style="text-align:center;">4-6</td><td>拆件动画</td><td>钳子抓取 + 身体上拉，腿部收缩</td></tr>
+      <tr><td>sit</td><td style="text-align:center;">4</td><td>原图修改</td><td>腿部折叠坐姿，保持身体/钳子形状</td></tr>
+      <tr><td>sleep</td><td style="text-align:center;">4</td><td>原图修改</td><td>闭眼帧 + 身体缓慢起伏</td></tr>
+      <tr><td>fall</td><td style="text-align:center;">4</td><td>原图修改</td><td>旋转 90° + 钳子张开</td></tr>
+      <tr><td>happy</td><td style="text-align:center;">4-6</td><td>原图修改 + 粒子</td><td>身体弹跳 + 爱心/星星粒子层</td></tr>
+      <tr><td>eat</td><td style="text-align:center;">4-6</td><td>原图修改</td><td>钳子夹小像素食物到嘴部</td></tr>
+    </table>
+
+    <div style="margin-top:16px;padding:12px;background:#1a1a1a;border-radius:6px;">
+      <span style="color:#D97757;">💡 核心原则</span>
+      <span style="color:#aaa;font-size:12px;display:block;margin-top:4px;">
+        所有动画帧均使用官方 9 色调色板，以原图 idle 帧为基准，通过像素级修改和部件位移制作。
+        渲染时用 PixiJS 的 NEAREST 缩放模式 + crispEdges 保持像素锐利感。
+        桌面显示尺寸建议 2x (190×140) 到 4x (380×280)，适配不同分辨率屏幕。
+      </span>
+    </div>
+  </div>
+</div>

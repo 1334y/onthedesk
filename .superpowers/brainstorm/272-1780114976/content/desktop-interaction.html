@@ -1,0 +1,289 @@
+<h2>🪟 桌面交互 &amp; 窗口攀爬系统</h2>
+<p class="subtitle">Shimeji 式全自由度 · 窗口攀爬 · 任务栏活动 · 技术难度最高模块</p>
+
+<div class="section">
+  <h3>整体交互模式</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Clawd 的桌面活动范围</div>
+  <div class="mockup-body" style="padding:16px;text-align:center;">
+    <div style="border:2px solid #555;border-radius:8px;padding:10px;background:#0a0a0a;display:inline-block;text-align:left;">
+      <div style="color:#555;font-size:10px;text-align:center;margin-bottom:4px;">屏幕边界</div>
+      <!-- Simulated desktop -->
+      <div style="position:relative;width:440px;height:260px;background:#191A1B;border-radius:4px;padding:4px;">
+        <!-- Simplified taskbar -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:28px;background:#2a2a2a;border-radius:0 0 4px 4px;display:flex;align-items:center;padding:0 8px;gap:6px;">
+          <span style="width:20px;height:20px;background:#D97757;border-radius:3px;"></span>
+          <span style="width:20px;height:20px;background:#555;border-radius:3px;"></span>
+          <span style="width:20px;height:20px;background:#555;border-radius:3px;"></span>
+          <span style="color:#888;font-size:9px;margin-left:4px;">← 任务栏活动</span>
+        </div>
+        <!-- Window 1 -->
+        <div style="position:absolute;top:30px;left:40px;width:150px;height:100px;background:#202530;border:1px solid #3a3a4a;border-radius:3px 3px 0 0;">
+          <div style="height:18px;background:#1a1a2a;border-radius:3px 3px 0 0;display:flex;align-items:center;padding:0 6px;justify-content:space-between;">
+            <span style="color:#666;font-size:8px;">VSCode</span>
+            <span style="color:#D97757;font-size:8px;">🦀 坐在这里</span>
+          </div>
+        </div>
+        <!-- Window 2 -->
+        <div style="position:absolute;top:60px;right:30px;width:120px;height:80px;background:#202530;border:1px solid #3a3a4a;border-radius:3px 3px 0 0;">
+          <div style="height:18px;background:#1a1a2a;border-radius:3px 3px 0 0;"></div>
+        </div>
+        <!-- Clawd on bottom -->
+        <div style="position:absolute;bottom:32px;left:180px;color:#D97757;font-size:11px;">🦀</div>
+        <!-- Arrow showing climb path -->
+        <div style="position:absolute;top:50px;left:195px;color:#888;font-size:8px;">↗ 攀爬中</div>
+      </div>
+    </div>
+    <div style="color:#888;font-size:11px;margin-top:8px;">
+      Clawd 在屏幕任意位置活动：地面行走 · 攀爬窗口 · 坐在标题栏 · 任务栏溜达 · 桌面角落睡觉
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>窗口系统架构</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Tauri 透明叠加窗口方案</div>
+  <div class="mockup-body" style="padding:16px;line-height:1.7;font-size:13px;color:#ccc;">
+
+    <div style="display:flex;gap:12px;margin-bottom:16px;">
+      <div style="flex:1;padding:12px;background:#1a1a2a;border-radius:6px;border-left:3px solid #569cd6;">
+        <h4 style="color:#569cd6;margin:0 0 6px;">窗口属性</h4>
+        <ul style="color:#aaa;font-size:12px;margin:0;padding-left:16px;line-height:1.8;">
+          <li><code>decorations: false</code> — 无边框</li>
+          <li><code>transparent: true</code> — 透明背景</li>
+          <li><code>alwaysOnTop: true</code> — 置顶</li>
+          <li><code>skipTaskbar: true</code> — 不在任务栏显示</li>
+          <li><code>resizable: false</code></li>
+          <li><code>focus: false</code> — 点击不抢焦点</li>
+          <li>窗口尺寸 = 屏幕逻辑分辨率（全屏覆盖）</li>
+        </ul>
+      </div>
+      <div style="flex:1;padding:12px;background:#1a2a1a;border-radius:6px;border-left:3px solid #4ec9b0;">
+        <h4 style="color:#4ec9b0;margin:0 0 6px;">关键特性</h4>
+        <ul style="color:#aaa;font-size:12px;margin:0;padding-left:16px;line-height:1.8;">
+          <li>点击穿透：非角色区域鼠标穿透到下层窗口</li>
+          <li>角色区域接收鼠标（单击/拖拽/右键）</li>
+          <li>透明区域完全不可见、不可交互</li>
+          <li>窗口跟随屏幕分辨率变化自动 resize</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="padding:12px;background:#1a1a1a;border-radius:6px;">
+      <span style="color:#D97757;font-size:12px;">📐 实现方式</span>
+      <p style="color:#aaa;font-size:12px;margin:6px 0 0;">
+        全屏透明窗口覆盖桌面，PixiJS Canvas 渲染在窗口上。<br>
+        仅在有角色像素的位置响应鼠标事件（用 Canvas 像素级碰撞检测）。<br>
+        其他区域通过 <code>setIgnoreCursorEvents(true)</code> 实现鼠标穿透。
+        <br><br>
+        备选方案（各平台差异）：<br>
+        • Windows: <code>SetWindowLongPtr</code> + <code>WS_EX_TRANSPARENT</code> + 区域掩码<br>
+        • macOS: <code>NSWindow.ignoresMouseEvents</code> + 动态切换<br>
+        • Linux: X11 <code>shape extension</code> / Wayland 差异较大
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>窗口检测 &amp; 攀爬系统</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">三级窗口感知</div>
+  <div class="mockup-body" style="padding:16px;">
+
+    <div style="display:flex;gap:12px;margin-bottom:16px;">
+      <div style="flex:1;padding:12px;background:#1a1a2a;border-radius:6px;border-left:3px solid #ce9178;">
+        <h4 style="color:#ce9178;margin:0 0 6px;">🪟 L1: 窗口枚举</h4>
+        <p style="color:#aaa;font-size:12px;margin:4px 0;line-height:1.6;">
+          通过 OS API 获取所有顶层窗口：
+        </p>
+        <ul style="color:#888;font-size:11px;margin:0;padding-left:16px;line-height:1.8;">
+          <li>Windows: <code>EnumWindows</code> / <code>GetWindowRect</code></li>
+          <li>macOS: <code>CGWindowListCopyWindowInfo</code></li>
+          <li>Linux: X11 <code>XQueryTree</code> / <code>_NET_CLIENT_LIST</code></li>
+        </ul>
+        <p style="color:#888;font-size:11px;margin:4px 0;">
+          过滤：排除自身、排除最小化/不可见窗口、排除全屏窗口
+        </p>
+      </div>
+
+      <div style="flex:1;padding:12px;background:#1a1a2a;border-radius:6px;border-left:3px solid #ce9178;">
+        <h4 style="color:#ce9178;margin:0 0 6px;">📐 L2: 边缘提取</h4>
+        <p style="color:#aaa;font-size:12px;margin:4px 0;line-height:1.6;">
+          从窗口矩形计算可攀爬边缘：
+        </p>
+        <ul style="color:#888;font-size:11px;margin:0;padding-left:16px;line-height:1.8;">
+          <li>顶部边缘 → 可行走/可坐下</li>
+          <li>左右边缘 → 可垂直攀爬</li>
+          <li>底部边缘 → 可悬挂</li>
+          <li>边缘段校验：排除被其他窗口遮挡的部分</li>
+        </ul>
+      </div>
+
+      <div style="flex:1;padding:12px;background:#1a1a2a;border-radius:6px;border-left:3px solid #ce9178;">
+        <h4 style="color:#ce9178;margin:0 0 6px;">🎯 L3: 攀爬决策</h4>
+        <p style="color:#aaa;font-size:12px;margin:4px 0;line-height:1.6;">
+          行为仲裁器决定是否攀爬：
+        </p>
+        <ul style="color:#888;font-size:11px;margin:0;padding-left:16px;line-height:1.8;">
+          <li>附近有窗口边缘 → 概率走高</li>
+          <li>体力和心情影响攀爬意愿</li>
+          <li>攀爬路径 A* 寻路</li>
+          <li>边缘坐下概率与心情正相关</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="padding:12px;background:#1a1a1a;border-radius:6px;">
+      <span style="color:#D97757;font-size:12px;">🪜 攀爬流程</span>
+      <div style="color:#aaa;font-size:12px;line-height:1.8;margin-top:4px;">
+        1. 检测到窗口边缘在角色附近（阈值 20px）<br>
+        2. 行为仲裁 → 决定攀爬<br>
+        3. 边缘接触点锚定 → WALK → 贴边 → CLIMB 动画 → 到达顶部边缘<br>
+        4. 顶部行走/SIT/继续攀爬更高窗口<br>
+        5. 边缘消失（窗口移动/关闭）→ FALL 动画 → 落到下一表面或地面
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>物理 &amp; 移动系统</h3>
+</div>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">地面检测 &amp; 重力</div>
+    <div class="mockup-body" style="padding:12px;font-size:13px;line-height:1.8;color:#ccc;">
+      <ul style="margin:0;padding-left:16px;line-height:2;">
+        <li><strong>地面</strong> = 任务栏顶部 / 屏幕底部</li>
+        <li><strong>平台</strong> = 所有窗口顶部边缘</li>
+        <li>站在地面上：角色 y = ground_y - height</li>
+        <li>站在窗口上：角色 y = window_top - height</li>
+        <li>无地面支撑 → 进入 FALL 状态</li>
+        <li>FALL → 射线向下检测第一个表面 → 着陆</li>
+      </ul>
+      <div style="margin-top:10px;color:#888;font-size:11px;">
+        物理简化：角色始终站在某表面或下落中<br>
+        不模拟惯性/动量（像素风不需要）
+      </div>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">行走移动模型</div>
+    <div class="mockup-body" style="padding:12px;font-size:13px;line-height:1.8;color:#ccc;">
+      <ul style="margin:0;padding-left:16px;line-height:2;">
+        <li><strong>随机游走</strong>：选方向 → 走 50~200px → 停顿</li>
+        <li><strong>目标导向</strong>：走向窗口边缘 / 任务栏区域</li>
+        <li>水平速度：~60 px/s（2x 缩放后）</li>
+        <li>方向切换：走到边缘或随机转向</li>
+        <li><strong>任务栏活动</strong>：沿任务栏横向行走，跳跃图标</li>
+      </ul>
+      <div style="margin-top:10px;color:#888;font-size:11px;">
+        PixiJS Ticker 驱动位置更新<br>
+        每帧: 位置 += 速度 × delta
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>多平台窗口 API 差异</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">平台适配层设计</div>
+  <div class="mockup-body" style="padding:16px;overflow-x:auto;">
+    <table style="width:100%;color:#ccc;font-size:12px;">
+      <tr style="color:#D97757;">
+        <th style="text-align:left;padding:8px;">能力</th>
+        <th style="text-align:left;padding:8px;">Windows</th>
+        <th style="text-align:left;padding:8px;">macOS</th>
+        <th style="text-align:left;padding:8px;">Linux (X11)</th>
+      </tr>
+      <tr>
+        <td style="color:#888;padding:6px;">透明置顶</td>
+        <td>Win32 API + Tauri</td>
+        <td>NSWindow level</td>
+        <td>_NET_WM_STATE_ABOVE</td>
+      </tr>
+      <tr>
+        <td style="color:#888;padding:6px;">鼠标穿透</td>
+        <td>WS_EX_TRANSPARENT + 区域掩码</td>
+        <td>ignoresMouseEvents</td>
+        <td>XShapeCombineRectangles</td>
+      </tr>
+      <tr>
+        <td style="color:#888;padding:6px;">窗口枚举</td>
+        <td>EnumWindows</td>
+        <td>CGWindowList</td>
+        <td>XQueryTree + _NET_CLIENT_LIST</td>
+      </tr>
+      <tr>
+        <td style="color:#888;padding:6px;">任务栏检测</td>
+        <td>FindWindow("Shell_TrayWnd")</td>
+        <td>Dock 检测较难<sup>*</sup></td>
+        <td>_NET_WM_STRUT 属性</td>
+      </tr>
+      <tr>
+        <td style="color:#888;padding:6px;">活动窗口检测</td>
+        <td>GetForegroundWindow</td>
+        <td>NSWorkspace.frontmostApplication</td>
+        <td>_NET_ACTIVE_WINDOW</td>
+      </tr>
+      <tr>
+        <td style="color:#888;padding:6px;">系统托盘</td>
+        <td>Shell_NotifyIcon</td>
+        <td>NSStatusBar</td>
+        <td>AppIndicator / libappindicator</td>
+      </tr>
+    </table>
+    <div style="margin-top:12px;color:#888;font-size:11px;">
+      <sup>*</sup> macOS Dock 检测有沙箱限制，需辅助功能权限。优先实现 Windows/Linux 任务栏行为，macOS 降级为屏幕底部区域活动。
+      <br>
+      平台差异封装在 Tauri Rust 后端的一个 <code>PlatformProvider</code> trait 中，编译时条件编译。
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>性能策略</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">后台常驻，不能吃太多资源</div>
+  <div class="mockup-body" style="padding:12px;">
+    <div style="display:flex;gap:12px;">
+      <div style="flex:1;padding:10px;background:#1a1a2a;border-radius:4px;text-align:center;">
+        <div style="color:#569cd6;font-size:24px;">🎯</div>
+        <div style="color:#ccc;font-size:12px;margin-top:4px;">活动时 60fps</div>
+        <div style="color:#888;font-size:10px;">角色移动 / 动画播放</div>
+      </div>
+      <div style="flex:1;padding:10px;background:#1a1a2a;border-radius:4px;text-align:center;">
+        <div style="color:#569cd6;font-size:24px;">😴</div>
+        <div style="color:#ccc;font-size:12px;margin-top:4px;">静止 5s → 10fps</div>
+        <div style="color:#888;font-size:10px;">idle 呼吸动画降帧</div>
+      </div>
+      <div style="flex:1;padding:10px;background:#1a1a2a;border-radius:4px;text-align:center;">
+        <div style="color:#569cd6;font-size:24px;">💤</div>
+        <div style="color:#ccc;font-size:12px;margin-top:4px;">后台 30s → 1fps</div>
+        <div style="color:#888;font-size:10px;">仅心跳定时器运行</div>
+      </div>
+      <div style="flex:1;padding:10px;background:#1a1a2a;border-radius:4px;text-align:center;">
+        <div style="color:#569cd6;font-size:24px;">⏱️</div>
+        <div style="color:#ccc;font-size:12px;margin-top:4px;">窗口枚举 2s 间隔</div>
+        <div style="color:#888;font-size:10px;">不每帧查询窗口位置</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;color:#888;font-size:11px;">
+      目标运行内存: &lt;80MB · CPU: 空闲 &lt;1% · 有动画 &lt;3%
+    </div>
+  </div>
+</div>

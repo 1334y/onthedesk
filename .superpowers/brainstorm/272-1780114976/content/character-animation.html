@@ -1,0 +1,140 @@
+<h2>🦀 角色与动画系统设计</h2>
+<p class="subtitle">Clawd 像素螃蟹 — 精灵制作 · 动画状态机 · 行为系统</p>
+
+<div class="section">
+  <h3>角色视觉规范</h3>
+</div>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">Clawd 像素螃蟹设计</div>
+    <div class="mockup-body" style="text-align:center;padding:20px;line-height:1.2;font-family:monospace;font-size:10px;color:#ff6b6b;">
+      <!-- ASCII art approximation of pixel crab -->
+      <div style="color:#fff;font-size:12px;margin-bottom:8px;">48×48 px 参考</div>
+<pre style="color:#ff6b6b;display:inline-block;text-align:left;">
+  ████████████████████████████████  ← 方形钳
+  ██░░░░████████████████████░░░░██
+  ██░░░░████████████████████░░░░██
+  ██░░░░████████████████████░░░░██  ← 眼睛（方形黑）
+  ████████████████████████████████
+     ██████████████████████████     ← 身体（矩形块）
+     ██████████████████████████
+  ██░░████████████████████░░██      ← 两侧小钳
+  ██░░░░████░░░░░░░░░░░░░░████
+  ████████████████████████████████
+  ████████████████████████████████  ← 腿部（块状）
+     ██    ██    ██    ██    ██
+     ██    ██    ██    ██    ██
+</pre>
+      <div style="color:#888;margin-top:10px;font-size:11px;">参考 Claude Code Buddy 螃蟹风格<br>像素块状 · 红色系 · 方形黑眼 · 双钳</div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">精灵规格</div>
+    <div class="mockup-body" style="padding:12px;font-size:13px;line-height:1.8;">
+      <table style="width:100%;color:#ccc;">
+        <tr><td style="color:#888;">基础尺寸</td><td>48×48（可缩放到 64/96）</td></tr>
+        <tr><td style="color:#888;">帧率</td><td>8-12 fps（像素风无需高帧率）</td></tr>
+        <tr><td style="color:#888;">格式</td><td>Sprite Sheet PNG + JSON 帧数据</td></tr>
+        <tr><td style="color:#888;">调色板</td><td>🟥 主色红 · ⬜ 亮红 · ⬛ 黑眼 · ⬜ 白高光</td></tr>
+        <tr><td style="color:#888;">变体</td><td>普通 / 开心 / 饥饿 / 睡觉 / 稀有闪光</td></tr>
+      </table>
+      <div style="margin-top:12px;padding:8px;background:#1a1a1a;border-radius:4px;">
+        <span style="color:#ff6b6b;">🎨 颜色方案</span>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <div style="width:28px;height:28px;background:#c0392b;border-radius:3px;" title="主色"></div>
+          <div style="width:28px;height:28px;background:#e74c3c;border-radius:3px;" title="亮色"></div>
+          <div style="width:28px;height:28px;background:#922b21;border-radius:3px;" title="暗色"></div>
+          <div style="width:28px;height:28px;background:#1a1a1a;border-radius:3px;" title="眼睛"></div>
+          <div style="width:28px;height:28px;background:#ffffff;border-radius:3px;" title="高光"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>动画状态机</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Animation State Machine — 完整状态图</div>
+  <div class="mockup-body" style="padding:16px;">
+    <pre style="font-size:12px;line-height:1.8;color:#ccc;background:#1a1a1a;border-radius:6px;padding:14px;overflow-x:auto;">
+                    ┌──────────────────────────────┐
+                    │          IDLE (待机)           │
+                    │  呼吸动画 · 眨眼 · 小动作      │
+                    └─────┬────────────┬───────────┘
+                          │            │
+            ┌─────────────┼────────────┼──────────────┐
+            ▼             ▼            ▼              ▼
+      ┌──────────┐ ┌──────────┐ ┌──────────┐  ┌──────────┐
+      │  WALK    │ │  CLIMB   │ │  SLEEP   │  │ EMOTE    │
+      │ 行走移动  │ │ 攀爬窗口  │ │ 睡觉休息  │  │ 表情动作  │
+      │ 4方向帧  │ │ 边缘抓取  │ │ Zzz气泡  │  │ 开心/生气 │
+      └────┬─────┘ └────┬─────┘ └────┬─────┘  │ /惊讶/❤  │
+           │            │            │         └────┬─────┘
+           ▼            ▼            ▼              │
+      ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+      │  FALL    │ │  SIT     │ │  WAKE    │       │
+      │ 掉落中    │ │ 坐在边缘  │ │ 醒来动画  │       │
+      │ 翻滚帧   │ │ 晃腿动画  │ │ 伸懒腰   │       │
+      └──────────┘ └──────────┘ └──────────┘       │
+                                                    │
+            ┌───────────────────────────────────────┘
+            ▼
+      ┌──────────┐  ┌──────────┐  ┌──────────┐
+      │  EAT     │  │  PLAY    │  │  CHAT    │
+      │ 进食动画  │  │ 玩耍动画  │  │ 对话中   │
+      │ 钳子动作  │  │ 跳舞转圈  │  │ 气泡框   │
+      └──────────┘  └──────────┘  └──────────┘
+    </pre>
+
+    <div style="display:flex;gap:12px;margin-top:12px;">
+      <div style="flex:1;padding:10px;background:#1a2a1a;border-radius:4px;border-left:3px solid #4ec9b0;">
+        <span style="color:#4ec9b0;font-size:12px;">循环状态</span>
+        <div style="color:#888;font-size:11px;margin-top:4px;">IDLE · WALK · CLIMB · SIT · SLEEP<br>循环播放直到触发转换</div>
+      </div>
+      <div style="flex:1;padding:10px;background:#2a1a1a;border-radius:4px;border-left:3px solid #ff6b6b;">
+        <span style="color:#ff6b6b;font-size:12px;">一次性状态</span>
+        <div style="color:#888;font-size:11px;margin-top:4px;">FALL · WAKE · EAT · EMOTE<br>播完自动回到 IDLE 或行为链状态</div>
+      </div>
+      <div style="flex:1;padding:10px;background:#1a1a2a;border-radius:4px;border-left:3px solid #569cd6;">
+        <span style="color:#569cd6;font-size:12px;">过渡规则</span>
+        <div style="color:#888;font-size:11px;margin-top:4px;">优先级: 玩家交互 > 养成需求 > 环境触发 > 随机行为</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>精灵表结构</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Sprite Sheet Layout（每行一个动作，每列一帧）</div>
+  <div class="mockup-body" style="padding:16px;">
+    <table style="width:100%;color:#ccc;font-size:13px;">
+      <tr style="color:#4ec9b0;">
+        <th style="text-align:left;padding:6px;">动作</th>
+        <th style="text-align:center;padding:6px;">帧数</th>
+        <th style="text-align:center;padding:6px;">帧率</th>
+        <th style="text-align:center;padding:6px;">方向</th>
+        <th style="text-align:left;padding:6px;">备注</th>
+      </tr>
+      <tr><td>idle</td><td style="text-align:center;">6</td><td style="text-align:center;">8</td><td style="text-align:center;">2 (L/R)</td><td>呼吸 + 偶尔眨眼帧</td></tr>
+      <tr><td>walk</td><td style="text-align:center;">8</td><td style="text-align:center;">10</td><td style="text-align:center;">2 (L/R)</td><td>横向移动，上下可用镜像/缩放模拟</td></tr>
+      <tr><td>climb</td><td style="text-align:center;">6</td><td style="text-align:center;">8</td><td style="text-align:center;">2 (L/R)</td><td>钳子抓取边缘，身体上拉</td></tr>
+      <tr><td>fall</td><td style="text-align:center;">4</td><td style="text-align:center;">10</td><td style="text-align:center;">1</td><td>翻滚下落</td></tr>
+      <tr><td>sit</td><td style="text-align:center;">4</td><td style="text-align:center;">6</td><td style="text-align:center;">2 (L/R)</td><td>坐在边缘，腿部晃动</td></tr>
+      <tr><td>sleep</td><td style="text-align:center;">4</td><td style="text-align:center;">6</td><td style="text-align:center;">1</td><td>身体起伏 + Zzz 粒子</td></tr>
+      <tr><td>eat</td><td style="text-align:center;">6</td><td style="text-align:center;">10</td><td style="text-align:center;">1</td><td>钳子夹食物送嘴</td></tr>
+      <tr><td>happy</td><td style="text-align:center;">6</td><td style="text-align:center;">10</td><td style="text-align:center;">1</td><td>开心跳起，钳子挥舞</td></tr>
+      <tr><td>angry</td><td style="text-align:center;">4</td><td style="text-align:center;">8</td><td style="text-align:center;">1</td><td>钳子砸地，身体抖动</td></tr>
+      <tr><td>heart</td><td style="text-align:center;">4</td><td style="text-align:center;">8</td><td style="text-align:center;">1</td><td>冒爱心粒子</td></tr>
+      <tr><td>special_1</td><td style="text-align:center;">8</td><td style="text-align:center;">10</td><td style="text-align:center;">1</td><td>彩蛋动作（跳舞等）</td></tr>
+    </table>
+    <div style="color:#888;margin-top:12px;font-size:11px;">预计精灵表: ~11行 × 8列 = 88帧, 单帧 48×48, 总尺寸约 384×528 px</div>
+  </div>
+</div>

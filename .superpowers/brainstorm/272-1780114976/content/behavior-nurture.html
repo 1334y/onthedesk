@@ -1,0 +1,201 @@
+<h2>🧠 行为系统 &amp; 养成系统设计</h2>
+<p class="subtitle">行为树 + 状态机驱动 · 中度养成 · 自然感优先</p>
+
+<div class="section">
+  <h3>行为系统架构</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">三层决策架构</div>
+  <div class="mockup-body" style="padding:16px;">
+    <pre style="font-size:12px;line-height:1.8;color:#ccc;background:#1a1a1a;border-radius:6px;padding:14px;">
+  ┌─────────────────────────────────────────────────┐
+  │  Layer 1: 需求评估层（每 500ms 评估一次）         │
+  │  ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐        │
+  │  │ 饥饿值  │ │ 体力值  │ │ 心情值  │ │ 好感度  │        │
+  │  │ Hunger │ │ Energy │ │  Mood  │ │ Affection│       │
+  │  └───┬───┘ └───┬───┘ └───┬───┘ └───┬───┘        │
+  │      └─────────┴─────────┴─────────┘             │
+  │                    ▼                             │
+  │         需求优先级排序 → 触发对应行为              │
+  └──────────────────────┬──────────────────────────┘
+                         ▼
+  ┌─────────────────────────────────────────────────┐
+  │  Layer 2: 行为仲裁层（竞争式仲裁器）               │
+  │                                                  │
+  │   需求行为 > 用户交互 > 环境触发 > 随机探索        │
+  │                                                  │
+  │   例: 饥饿=90 → EAT 覆盖所有其他行为              │
+  │       用户拖拽 → DRAG 覆盖除 EAT 外的一切          │
+  └──────────────────────┬──────────────────────────┘
+                         ▼
+  ┌─────────────────────────────────────────────────┐
+  │  Layer 3: 行为执行层（状态机 + 行为树混合）        │
+  │                                                  │
+  │   state → [sequence / selector / parallel]       │
+  │        → AnimationController.play(anim, loop)    │
+  │        → 行为后效果 (状态变化 / 粒子 / 气泡)       │
+  └─────────────────────────────────────────────────┘
+    </pre>
+  </div>
+</div>
+
+<div class="section">
+  <h3>养成数值系统</h3>
+</div>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">四大状态维度</div>
+    <div class="mockup-body" style="padding:12px;font-size:13px;line-height:1.8;">
+      <table style="width:100%;color:#ccc;">
+        <tr style="color:#D97757;">
+          <th style="text-align:left;padding:6px;">维度</th><th style="text-align:center;padding:6px;">范围</th><th style="text-align:center;padding:6px;">衰减</th><th style="text-align:left;padding:6px;">影响</th>
+        </tr>
+        <tr>
+          <td>🍞 饥饿 Hunger</td>
+          <td style="text-align:center;">0-100</td>
+          <td style="text-align:center;color:#D97757;">-1/10min</td>
+          <td>归零→强制觅食状态，拒绝玩耍</td>
+        </tr>
+        <tr>
+          <td>⚡ 体力 Energy</td>
+          <td style="text-align:center;">0-100</td>
+          <td style="text-align:center;color:#D97757;">-1/5min(活动)</td>
+          <td>耗尽→强制睡眠，移动变慢</td>
+        </tr>
+        <tr>
+          <td>😊 心情 Mood</td>
+          <td style="text-align:center;">0-100</td>
+          <td style="text-align:center;color:#D97757;">-1/15min</td>
+          <td>影响表情/动作丰富度</td>
+        </tr>
+        <tr>
+          <td>❤️ 好感 Affection</td>
+          <td style="text-align:center;">0-100</td>
+          <td style="text-align:center;color:#4ec9b0;">不衰减</td>
+          <td>累积型，解锁新动作/台词</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">好感度等级 &amp; 解锁</div>
+    <div class="mockup-body" style="padding:12px;font-size:13px;line-height:1.8;">
+      <table style="width:100%;color:#ccc;">
+        <tr style="color:#D97757;">
+          <th style="text-align:left;padding:6px;">等级</th><th style="text-align:center;padding:6px;">好感</th><th style="text-align:left;padding:6px;">解锁</th>
+        </tr>
+        <tr><td>🦀 陌生</td><td style="text-align:center;">0-25</td><td>基本动作(idle/walk/climb/sleep)</td></tr>
+        <tr><td>🦀 熟悉</td><td style="text-align:center;">26-50</td><td>坐窗口边晃腿、偶尔招手</td></tr>
+        <tr><td>🦀 亲近</td><td style="text-align:center;">51-75</td><td>跳舞、特殊表情、主动靠近鼠标</td></tr>
+        <tr><td>🦀 羁绊</td><td style="text-align:center;">76-100</td><td>彩蛋动作、稀有台词、传说皮肤</td></tr>
+      </table>
+      <div style="margin-top:10px;color:#888;font-size:11px;">
+        好感度获取：抚摸 +3、喂食 +5、聊天 +2、\\n长时间在线陪伴 +1/30min
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>日常行为节奏</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Clawd 的一天（默认节奏，可被用户交互打断）</div>
+  <div class="mockup-body" style="padding:16px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:120px;text-align:center;padding:10px;background:#1a1a2a;border-radius:6px;">
+        <div style="color:#6A9BCC;font-size:20px;">🌅</div>
+        <div style="color:#ccc;font-size:12px;margin-top:4px;">刚启动</div>
+        <div style="color:#888;font-size:10px;">伸懒腰 WAKE<br>随机走动<br>巡查桌面</div>
+      </div>
+      <div style="flex:1;min-width:120px;text-align:center;padding:10px;background:#1a1a2a;border-radius:6px;">
+        <div style="color:#6A9BCC;font-size:20px;">☀️</div>
+        <div style="color:#ccc;font-size:12px;margin-top:4px;">活跃中</div>
+        <div style="color:#888;font-size:10px;">高概率行走<br>爬窗口探索<br>偶尔坐下发呆</div>
+      </div>
+      <div style="flex:1;min-width:120px;text-align:center;padding:10px;background:#1a1a2a;border-radius:6px;">
+        <div style="color:#6A9BCC;font-size:20px;">😴</div>
+        <div style="color:#ccc;font-size:12px;margin-top:4px;">体力低下</div>
+        <div style="color:#888;font-size:10px;">找角落坐下<br>缓慢进入 SLEEP<br>Zzz 气泡</div>
+      </div>
+      <div style="flex:1;min-width:120px;text-align:center;padding:10px;background:#1a1a2a;border-radius:6px;">
+        <div style="color:#6A9BCC;font-size:20px;">🍞</div>
+        <div style="color:#ccc;font-size:12px;margin-top:4px;">饥饿状态</div>
+        <div style="color:#888;font-size:10px;">焦急走动<br>冒食物气泡<br>主动引起注意</div>
+      </div>
+      <div style="flex:1;min-width:120px;text-align:center;padding:10px;background:#1a1a2a;border-radius:6px;">
+        <div style="color:#6A9BCC;font-size:20px;">🎲</div>
+        <div style="color:#ccc;font-size:12px;margin-top:4px;">随机事件</div>
+        <div style="color:#888;font-size:10px;">翻跟头 / 跳舞<br>追逐鼠标<br>稀有彩蛋动作</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>用户交互方式</h3>
+</div>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">鼠标交互</div>
+    <div class="mockup-body" style="padding:12px;font-size:13px;line-height:1.8;color:#ccc;">
+      <table style="width:100%;">
+        <tr><td style="color:#888;padding:4px;">单击</td><td>打招呼，冒气泡随机台词</td></tr>
+        <tr><td style="color:#888;padding:4px;">双击</td><td>开心跳起 + 爱心粒子</td></tr>
+        <tr><td style="color:#888;padding:4px;">拖拽</td><td>抓起螃蟹，放到新位置</td></tr>
+        <tr><td style="color:#888;padding:4px;">右键</td><td>弹出菜单（喂食/聊天/设置/退出）</td></tr>
+        <tr><td style="color:#888;padding:4px;">鼠标靠近</td><td>眼睛跟随鼠标方向</td></tr>
+        <tr><td style="color:#888;padding:4px;">悬停</td><td>显示当前状态摘要气泡</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">右键菜单</div>
+    <div class="mockup-body" style="padding:12px;font-size:13px;line-height:1.8;color:#ccc;">
+      <div class="mock-nav" style="font-size:12px;border-radius:4px;padding:10px;background:#1a1a1a;">
+        🍞 喂食 (Feed)<br>
+        💬 聊天 (Chat) — 需配置 API Key<br>
+        🎒 背包 (Items)<br>
+        ⚙️ 设置 (Settings)<br>
+        ────────────<br>
+        ❌ 退出 (Quit)
+      </div>
+      <div style="margin-top:8px;color:#888;font-size:11px;">
+        右键菜单由 Tauri 原生菜单实现<br>
+        （系统级右键菜单，非前端模拟）
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>气泡对话系统</h3>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">情境台词库（本地预设 + 可选 Claude API 智能回复）</div>
+  <div class="mockup-body" style="padding:16px;">
+    <table style="width:100%;color:#ccc;font-size:13px;">
+      <tr style="color:#D97757;">
+        <th style="text-align:left;padding:6px;">触发情境</th>
+        <th style="text-align:left;padding:6px;">示例台词</th>
+        <th style="text-align:center;padding:6px;">来源</th>
+      </tr>
+      <tr><td>刚启动</td><td>"嘿！你回来了！🦀"</td><td style="text-align:center;">本地库</td></tr>
+      <tr><td>被抚摸</td><td>"嘿嘿，好痒~"</td><td style="text-align:center;">本地库</td></tr>
+      <tr><td>饥饿</td><td>"有没有小零食..."</td><td style="text-align:center;">本地库</td></tr>
+      <tr><td>长时间挂机</td><td>"你刚才去哪了..."</td><td style="text-align:center;">本地库</td></tr>
+      <tr><td>凌晨</td><td>"这么晚还不睡？"</td><td style="text-align:center;">本地库</td></tr>
+      <tr><td>点击聊天</td><td>Claude API 智能对话</td><td style="text-align:center;color:#6A9BCC;">API</td></tr>
+      <tr><td>代码报错检测</td><td>"好像出 bug 了..."</td><td style="text-align:center;">本地库</td></tr>
+    </table>
+    <div style="margin-top:12px;color:#888;font-size:11px;">
+      本地台词库：~200 条预设台词，JSON 格式存储，分类索引（问候/饥饿/抚摸/时间/天气/随机）
+    </div>
+  </div>
+</div>
